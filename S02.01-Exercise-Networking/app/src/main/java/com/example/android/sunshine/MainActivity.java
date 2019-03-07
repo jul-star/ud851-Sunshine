@@ -21,7 +21,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.utilities.NetworkUtils;
+import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.io.IOException;
@@ -65,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
     // TODO (8) Create a method that will get the user's preferred location and execute your new AsyncTask and call it loadWeatherData
     public void loadWeatherData()
     {
-        String location = "Moscow";
-        URL url = NetworkUtils.buildUrl(location);
-        new NetworkRequest.execute(url);
+        String location = SunshinePreferences.getPreferredWeatherLocation(this);
+//        URL url = NetworkUtils.buildUrl(location);
+        new FetchWeatherTask.execute(location);
 
     }
 
@@ -75,24 +77,49 @@ public class MainActivity extends AppCompatActivity {
     // TODO (6) Override the doInBackground method to perform your network requests
     // TODO (7) Override the onPostExecute method to display the results of the network request
 
-    public class NetworkRequest extends AsyncTask<URL, Void, String>
+    public class FetchWeatherTask extends AsyncTask<String, Void, String[]>
     {
+//        @Override
+//        protected String doInBackground(URL... urls) {
+//            String respond = new String();
+//            try {
+//                respond = NetworkUtils.getResponseFromHttpUrl(urls[0]);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            return  respond;
+//        }
+
         @Override
-        protected String doInBackground(URL... urls) {
-            String respond = new String();
-            try {
-                respond = NetworkUtils.getResponseFromHttpUrl(urls[0]);
-            } catch (Exception e) {
+        protected String[] doInBackground(String... strings) {
+            try{
+                if(strings != null && strings.length > 0)
+                {
+                    URL url = NetworkUtils.buildUrl(strings[0]);
+                    try {
+                        String json = NetworkUtils.getResponseFromHttpUrl(url);
+                        return OpenWeatherJsonUtils.getSimpleWeatherStringsFromJson(MainActivity.this, json);
+                    }
+                    catch (IOException i)
+                    {
+                        i.printStackTrace();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
-            return  respond;
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            if(s!=null){
-                mWeatherTextView.setText(s);
-            }
+            return new String[0];
         }
 
+        @Override
+        protected void onPostExecute(String[] strings) {
+            String weather = new String();
+            for(String s:strings)
+            {
+                mWeatherTextView.append(s+"\n\n");
+            }
+        }
     }
 }
