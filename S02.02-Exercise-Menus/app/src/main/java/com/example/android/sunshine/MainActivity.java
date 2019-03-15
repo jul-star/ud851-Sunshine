@@ -18,7 +18,10 @@ package com.example.android.sunshine;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.utilities.NetworkUtils;
@@ -83,6 +86,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            mWeatherTextView.setText("Wait a second");
+        }
+
+        @Override
         protected void onPostExecute(String[] weatherData) {
             if (weatherData != null) {
                 /*
@@ -90,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                  * the "\n\n\n" after the String is to give visual separation between each String in the
                  * TextView. Later, we'll learn about a better way to display lists of data.
                  */
+                mWeatherTextView.setText("");
                 for (String weatherString : weatherData) {
                     mWeatherTextView.append((weatherString) + "\n\n\n");
                 }
@@ -101,8 +110,28 @@ public class MainActivity extends AppCompatActivity {
     // TODO (3) Add one item to the menu with an ID of action_refresh
     // TODO (4) Set the title of the menu item to "Refresh" using strings.xml
 
+
+
     // TODO (5) Override onCreateOptionsMenu to inflate the menu for this Activity
     // TODO (6) Return true to display the menu
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+
     // TODO (7) Override onOptionsItemSelected to handle clicks on the refresh button
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int SelectedItem = item.getItemId();
+        if(SelectedItem == R.id.action_refresh)
+        {
+            Toast.makeText(MainActivity.this, "Refresh pushed", Toast.LENGTH_SHORT).show();
+            loadWeatherData();
+        }
+        return  true;
+    }
 }
