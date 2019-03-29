@@ -223,6 +223,16 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
 
         // TODO (2) Launch the map when the map menu item is clicked
 
+        if(id == R.id.action_map)
+        {
+            Uri.Builder builder = new Uri.Builder();
+            String location = new String("Dubna Moscow Region Russia 141985");
+            builder.scheme("geo").path("0.0").appendQueryParameter("q", location);
+            Uri address = builder.build();
+            Intent intent = new Intent(Intent.ACTION_VIEW, address);
+            startActivity(intent);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 }
